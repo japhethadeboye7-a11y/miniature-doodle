@@ -1,0 +1,23 @@
+import sys
+from pyembroidery import EmbPattern, write_dst
+from PIL import Image
+
+# Arguments from Node.js
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+
+# Load uploaded image and convert to black & white
+img = Image.open(input_file).convert("1")  # Black & white
+
+pattern = EmbPattern()
+
+width, height = img.size
+
+# Simple conversion: black pixels → stitches
+for y in range(height):
+    for x in range(width):
+        if img.getpixel((x, y)) == 0:  # black pixel
+            pattern.add_stitch_abs(x, y)
+
+# Write DST file
+write_dst(pattern, output_file)
