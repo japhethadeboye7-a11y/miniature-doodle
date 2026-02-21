@@ -1,0 +1,29 @@
+const { execFile } = require("child_process");
+const path = require("path");
+const fs = require("fs");
+
+module.exports = {
+  convertToDST: async (fileBuffer) => {
+    // Save uploaded file temporarily
+    const inputPath = path.join(__dirname, "temp_input.png");   // uploaded file
+    const outputPath = path.join(__dirname, "temp_output.dst"); // DST output
+
+    fs.writeFileSync(inputPath, fileBuffer);
+
+    return new Promise((resolve, reject) => {
+      // Call Python script to generate real DST
+      execFile("python3", [path.join(__dirname, "convert_dst.py"), inputPath, outputPath], (error) => {
+        if (error) return reject(error);
+
+        // Read the generated DST
+        const dstBuffer = fs.readFileSync(outputPath);
+
+        // Clean up temp files
+        fs.unlinkSync(inputPath);
+        fs.unlinkSync(outputPath);
+
+        resolve(dstBuffer);
+      });
+    });
+  },
+};
